@@ -4,5 +4,5 @@ class RunException(Exception):
 
 class DayRunner:
     @staticmethod
-    def run(day, year, part):
+    def run(day, year, part, debug):
         pass

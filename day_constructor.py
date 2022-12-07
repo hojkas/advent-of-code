@@ -5,11 +5,11 @@ class ConstructionException(Exception):
     pass
 
 
-def fetch_input():
+class ConstructionException(Exception):
     pass
 
 
 class DayConstructor:
     @staticmethod
-    def construct(day, year, auto_input):
-        fetch_input()
+    def construct(day, year, debug):
+        pass

@@ -7,9 +7,9 @@ def main():
     try:
         args = ArgumentParser().parse()
         if args.run:
-            DayRunner.run(args.day, args.year, args.part)
+            DayRunner.run(args.day, args.year, args.part, args.debug)
         else:
-            DayConstructor.construct(args.day, args.year, args.auto_input)
+            DayConstructor.construct(args.day, args.year, args.debug)
 
     except ArgumentException as ex:
         print(CC.RED, 'Argument Error: ', CC.NC, ex, sep='')
