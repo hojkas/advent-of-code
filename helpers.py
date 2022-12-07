@@ -32,7 +32,7 @@ class ArgumentException(Exception):
 
 
 class ArgumentParser:
-    __slots__ = ['day', 'year', 'construct', 'run', 'auto_input', 'part', 'debug']
+    __slots__ = ['day', 'year', 'construct', 'run', 'part', 'debug']
 
     def parse(self):
         parser = argparse.ArgumentParser(description='AOC custom runner')
@@ -42,9 +42,6 @@ class ArgumentParser:
         parser.add_argument('-y', '--year', dest='year', type=int, help='Year number')
         parser.add_argument('-c', '--construct', dest='construct', action='store_true', default=False,
                             help='When flag is present, create the day files instead.')
-        parser.add_argument('-a', '--input', '--auto_input', '--auto-input', dest='auto_input', action='store_true',
-                            default=False,
-                            help='True if the input should be automatically fetched from AoC website.')
         parser.add_argument('-r', '--run', dest='run', action='store_true', default=False,
                             help='Run selected day.')
         parser.add_argument('-p', '--part', dest='part', default=0, type=int,
@@ -67,7 +64,6 @@ class ArgumentParser:
         self.year = args.year if args.year else config['default_year']
         self.construct = args.construct
         self.run = args.run
-        self.auto_input = args.auto_input
         self.part = args.part
         self.debug = args.debug
 
@@ -111,10 +107,6 @@ class ArgumentParser:
         if construct == 'y':
             self.construct = True
             self.run = False
-
-            input_fetch = input('Auto fetch input from web? y/n (Blank for no)\n')
-            if input_fetch == 'y':
-                self.auto_input = True
         else:
             part = input('Which part to run? 0-2 (Leave blank for 0 = both)\n')
             part = part if part else 0
