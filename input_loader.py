@@ -5,7 +5,7 @@ from exceptions import RunException
 class InputLoader:
     def __init__(self, filepath):
         if not os.path.exists(filepath) or not os.path.isfile(filepath):
-            raise RunException('File with name ' + filepath + ' does not exist.')
+            raise RunException('Input file with name ' + str(filepath) + ' does not exist.')
         self.filepath = filepath
 
     def _load_input_as_generator(self, separator, retype_int=False):
