@@ -80,6 +80,7 @@ class ArgumentParser:
     def _pretty_print(self):
         for key in self.__slots__:
             print(CC.YELLOW, key, CC.NC, ': ', getattr(self, key), sep='')
+        print()
 
     def _debug_pretty_print(self):
         if self.debug:
