@@ -2,6 +2,8 @@ from importlib import import_module
 from abstract_day import AbstractDay
 from exceptions import RunException
 from input_loader import InputLoader
+from os.path import sep
+import pathlib
 
 
 class Runner:
@@ -17,7 +19,9 @@ class Runner:
 
     @staticmethod
     def _construct_input_loader(day, year) -> InputLoader:
-        pass
+        local_filepath = '.' + sep + 'year' + str(year) + sep + 'day' + str(day) + '_input'
+        filepath = pathlib.Path(local_filepath).resolve()
+        return InputLoader(filepath)
 
     @staticmethod
     def run(day, year, part, debug):

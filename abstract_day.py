@@ -7,7 +7,7 @@ class AbstractDay(ABC):
         pass
 
     @abstractmethod
-    def use_debug(self, use_debug=True):
+    def use_debug(self, use_debug=False):
         pass
 
     @abstractmethod
