@@ -1,20 +1,28 @@
 from abstract_day import AbstractDay
 from exceptions import RunException
+from input_loader import InputLoader
+
+def print_result(part, result):
+    print(CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
 class DayRunner(AbstractDay):
     def __init__(self):
-        self.input_loader = None
-        self.debug = False
+        self.input_loader: InputLoader | None = None
+        self.debug_mode = False
+
+    def dbg(self, *args, **kwargs):
+        if self.debug_mode:
+            print(*args, **kwargs)
 
     def add_input_loader(self, input_loader):
         self.input_loader = input_loader
 
     def use_debug(self, use_debug=False):
-        self.debug = use_debug
+        self.debug_mode = use_debug
 
     def run_part_one(self):
-        pass
+        print_result(1, '---')
 
     def run_part_two(self):
-        pass
+        print_result(2, '---')
