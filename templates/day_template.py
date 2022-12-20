@@ -1,11 +1,17 @@
+import os
 from abstract_day import AbstractDay
 from exceptions import RunException
+from helpers import CC
 from input_loader import InputLoader
 
+
+# noinspection DuplicatedCode
 def print_result(part, result):
-    print(CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
+    filename = os.path.basename(__file__).split('.')[0]
+    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
+# noinspection DuplicatedCode
 class DayRunner(AbstractDay):
     def __init__(self):
         self.input_loader: InputLoader | None = None
