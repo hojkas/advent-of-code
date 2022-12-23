@@ -1,6 +1,6 @@
 # Advent of Code year 2022
 
-Programming language: Python 3
+Programming language: Python 3 &#128013;
 
 | Day    | 1        | 2        | Date       |
 |--------|----------|----------|------------|
@@ -8,7 +8,7 @@ Programming language: Python 3
 | Day 2  | &#11088; | &#11088; | 20.12.2022 |
 | Day 3  | &#11088; | &#11088; | 20.12.2022 |
 | Day 4  | &#11088; | &#11088; | 20.12.2022 |
-| Day 5  |          |          |            |
+| Day 5  | &#11088; | &#11088; | 23.12.2022 |
 | Day 6  |          |          |            |
 | Day 7  |          |          |            |
 | Day 8  |          |          |            |
