@@ -11,6 +11,10 @@ class InputLoader:
     def load_input_as_generator(self, item_separator, retype_int=False):
         raise RunException('Load input function not yet implemented')
 
+    def load_input(self):
+        with open(self.filepath, 'r') as f:
+            return f.read()
+
     def load_input_array(self, item_separator, retype_item_to_int=False):
         with open(self.filepath, 'r') as f:
             full_input = f.read().split(item_separator)
