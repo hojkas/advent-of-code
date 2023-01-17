@@ -145,7 +145,7 @@ def construct_file_tree(input_array):
                 new_file = File(split_command[1], split_command[0], current_dir)
                 current_dir.add_item(new_file)
         else:
-            raise RunException('Should not happen, is the command ok?', line, split_command)
+            raise RunException('Should not happen, is the command ok?' + line + split_command)
     return root
 
 
