@@ -17,7 +17,7 @@ class InputLoader:
 
     def load_input_array(self, item_separator, retype_item_to_int=False):
         with open(self.filepath, 'r') as f:
-            full_input = f.read().split(item_separator)
+            full_input = f.read().strip().split(item_separator)
         if retype_item_to_int:
             return [int(x) for x in full_input]
         else:
@@ -25,7 +25,7 @@ class InputLoader:
 
     def load_input_array_of_array(self, subarray_separator, item_separator, retype_item_to_int=False):
         with open(self.filepath, 'r') as f:
-            full_input = f.read().split(subarray_separator)
+            full_input = f.read().strip().split(subarray_separator)
         if retype_item_to_int:
             return [[int(x) for x in y.split(item_separator)] for y in full_input]
         else:
