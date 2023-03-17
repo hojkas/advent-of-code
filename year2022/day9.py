@@ -67,12 +67,23 @@ class Coordinate:
     def touching_or_diagonal_or_same(self, other):
         return abs(self.x - other.x) <= 1 and abs(self.y - other.y) <= 1
 
+    def cut_values_to_one(self):
+        if self.x > 1:
+            self.x = 1
+        elif self.x < -1:
+            self.x = -1
+
+        if self.y > 1:
+            self.y = 1
+        elif self.y < -1:
+            self.y = -1
+
 
 class Rope:
-    def __init__(self):
-        self.head = Coordinate(0, 0)
-        self.tail = Coordinate(0, 0)
-        self.visited = {self.tail.copy()}
+    def __init__(self, lenght):
+        self.rope_chain = [Coordinate(0, 0) for _ in range(lenght)]
+        self.lenght = len(self.rope_chain)
+        self.visited = {Coordinate(0, 0)}
 
     def long_move(self, instruction: str):
         direction_s, count_s = instruction.split(" ")
@@ -82,28 +93,50 @@ class Rope:
             self._one_move(direction)
 
     def _one_move(self, direction: Coordinate):
-        self._move_head(direction)
-        self._adjust_tail(direction)
-
-    def _move_head(self, direction: Coordinate):
-        self.head = self.head + direction
-
-    def _adjust_tail(self, head_direction: Coordinate):
-        if self.tail.touching_or_diagonal_or_same(self.head):
-            return
-
-        if self.tail.same_x_or_y(self.head):
-            self.tail += head_direction
-        else:  # not in the same row or col
-            self.tail = self.head - head_direction
-
+        self._move_head(direction)  # first one moves without restrictions
+        for i in range(self.lenght - 1):  # last one doesn't have one behind to affect
+            self._adjust_following(i, i+1)
         self._mark_tail_position()
 
+    def _move_head(self, direction: Coordinate):
+        self.rope_chain[0] = self.rope_chain[0] + direction
+
+    def _adjust_following(self, lead_i, follow_i):
+        if self.rope_chain[follow_i].touching_or_diagonal_or_same(self.rope_chain[lead_i]):
+            return
+
+        lead_follow_diff = (self.rope_chain[lead_i] - self.rope_chain[follow_i])
+        lead_follow_diff.cut_values_to_one()
+        self.rope_chain[follow_i] = self.rope_chain[follow_i] + lead_follow_diff
+
     def _mark_tail_position(self):
-        self.visited.add(self.tail.copy())
+        self.visited.add(self.rope_chain[-1].copy())
 
     def tail_visited_count(self):
         return len(self.visited)
+
+    def print_state(self):
+        minx = min(self.rope_chain, key=lambda c: c.x).x
+        if minx > -10:
+            minx = -10
+        miny = min(self.rope_chain, key=lambda c: c.y).y
+        if miny > -10:
+            miny = -10
+        maxx = max(self.rope_chain, key=lambda c: c.x).x
+        if maxx < 10:
+            maxx = 10
+        maxy = max(self.rope_chain, key=lambda c: c.y).y
+        if maxy < 10:
+            maxy = 10
+
+        draw_board = [["." for _ in range(maxx - minx + 1)] for _ in range(maxy - miny + 1)]
+        for i, coord in enumerate(self.rope_chain):
+            draw_board[coord.y - miny][coord.x - minx] = str(i + 1)
+        for row in draw_board:
+            for col in row:
+                print(col, end="")
+            print()
+        print("---")
 
 
 class DayRunner(AbstractDay):
@@ -123,11 +156,16 @@ class DayRunner(AbstractDay):
 
     def run_part_one(self):
         input_array = self.input_loader.load_input_array("\n")
-        rope = Rope()
+        rope = Rope(2)
         for line in input_array:
             rope.long_move(line)
         result = rope.tail_visited_count()
         print_result(1, result)
 
     def run_part_two(self):
-        print_result(2, '---')
+        input_array = self.input_loader.load_input_array("\n")
+        rope = Rope(10)
+        for line in input_array:
+            rope.long_move(line)
+        result = rope.tail_visited_count()
+        print_result(2, result)
