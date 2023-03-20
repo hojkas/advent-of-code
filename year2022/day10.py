@@ -61,6 +61,11 @@ class Computer:
     def signal_strenght(self):
         return self.cycle * self.x
 
+    def sprite_in_position(self, position):
+        if abs(position - self.x) <= 1:
+            return True
+        return False
+
 
 def part_one(input_array, cycle_breakpoints, stop_at):
     pc = Computer(input_array)
@@ -70,6 +75,20 @@ def part_one(input_array, cycle_breakpoints, stop_at):
             cycle_sum += pc.signal_strenght()
         if pc.cycle == stop_at:
             return cycle_sum
+        pc.run_next()
+
+
+def part_two(input_array, display_lenght, display_height):
+    pc = Computer(input_array)
+    while True:
+        if pc.sprite_in_position(pc.cycle % display_lenght - 1):
+            print("#", end="")
+        else:
+            print(".", end="")
+        if pc.cycle % display_lenght == 0:
+            print()
+        if pc.cycle == display_lenght * display_height:
+            return
         pc.run_next()
 
 
@@ -94,4 +113,6 @@ class DayRunner(AbstractDay):
         print_result(1, result)
 
     def run_part_two(self):
-        print_result(2, '---')
+        input_array = self.input_loader.load_input_array("\n")
+        part_two(input_array, 40, 6)
+        print_result(2, 'See terminal')
