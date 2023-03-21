@@ -3,7 +3,7 @@ from enum import Enum
 
 from abstract_day import AbstractDay
 from exceptions import RunException
-from helpers import CC
+from old_helpers import CC
 from input_loader import InputLoader
 
 
