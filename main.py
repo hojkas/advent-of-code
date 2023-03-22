@@ -8,9 +8,9 @@ def main():
     try:
         args = ArgumentParser().parse()
         if args.run:
-            Runner.run(args.day, args.year, args.part, args.debug)
+            Runner.run(args.day, args.year, args.part)
         else:
-            ScaffoldConstructor.construct(args.day, args.year, args.debug)
+            ScaffoldConstructor.construct(args.day, args.year)
 
     except ArgumentException as ex:
         print(CC.RED, 'Argument Error: ', CC.NC, ex, sep='')

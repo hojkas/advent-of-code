@@ -1,4 +1,5 @@
 import os
+from typing import Union
 from abstract_day import AbstractDay
 from exceptions import RunException
 from old_helpers import CC
@@ -107,18 +108,10 @@ def print_result(part, result):
 
 class DayRunner(AbstractDay):
     def __init__(self):
-        self.input_loader: InputLoader | None = None
-        self.debug_mode = False
-
-    def dbg(self, *args, **kwargs):
-        if self.debug_mode:
-            print(*args, **kwargs)
+        self.input_loader: Union[InputLoader, None] = None
 
     def add_input_loader(self, input_loader):
         self.input_loader = input_loader
-
-    def use_debug(self, use_debug=False):
-        self.debug_mode = use_debug
 
     def run_part_one(self):
         configuration, instructions = self.input_loader.load_input_array(item_separator='\n\n')

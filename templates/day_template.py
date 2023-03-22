@@ -14,17 +14,9 @@ def print_result(part, result):
 class DayRunner(AbstractDay):
     def __init__(self):
         self.input_loader: Union[InputLoader, None] = None
-        self.debug_mode = False
-
-    def dbg(self, *args, **kwargs):
-        if self.debug_mode:
-            print(*args, **kwargs)
 
     def add_input_loader(self, input_loader):
         self.input_loader = input_loader
-
-    def use_debug(self, use_debug=False):
-        self.debug_mode = use_debug
 
     def run_part_one(self):
         print_result(1, '---')

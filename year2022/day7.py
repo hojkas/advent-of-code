@@ -1,4 +1,5 @@
 import os
+from typing import Union
 from abstract_day import AbstractDay
 from exceptions import RunException
 from old_helpers import CC
@@ -35,7 +36,7 @@ class Directory(Item):
     def __init__(self,  name, parent):
         self._name: str = name
         self._content_map: dict[str, Item] = {}
-        self._size: int | None = None
+        self._size: Union[int, None] = None
         self._parent = parent
 
         self.depth = 0 if parent is None else parent.depth + 1
@@ -172,7 +173,7 @@ def part_two(file_tree: Directory):
     return best_fit
 
 
-def part_two_sub_search(curr_dir: Directory, best_fit_so_far: int | None, target: int) -> int:
+def part_two_sub_search(curr_dir: Directory, best_fit_so_far: Union[int, None], target: int) -> int:
     if best_fit_so_far is None:
         best_fit_so_far = curr_dir.size()
     elif target <= curr_dir.size() < best_fit_so_far:
@@ -185,18 +186,10 @@ def part_two_sub_search(curr_dir: Directory, best_fit_so_far: int | None, target
 
 class DayRunner(AbstractDay):
     def __init__(self):
-        self.input_loader: InputLoader | None = None
-        self.debug_mode = False
-
-    def dbg(self, *args, **kwargs):
-        if self.debug_mode:
-            print(*args, **kwargs)
+        self.input_loader: Union[InputLoader, None] = None
 
     def add_input_loader(self, input_loader):
         self.input_loader = input_loader
-
-    def use_debug(self, use_debug=False):
-        self.debug_mode = use_debug
 
     def run_part_one(self):
         command_array = self.input_loader.load_input_array('\n')

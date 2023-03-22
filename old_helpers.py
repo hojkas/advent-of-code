@@ -46,15 +46,12 @@ class ArgumentParser:
                             help='Run selected day.')
         parser.add_argument('-p', '--part', dest='part', default=0, type=int,
                             help='Part to run when running day. 0 = both, 1 = part 1, 2 = part 2.')
-        parser.add_argument('-v', '--verbose', '--debug', dest='debug', action='store_true', default=False,
-                            help='Write debug messages.')
 
         parsed_args = parser.parse_args()
         self._assign_args(parsed_args)
         if parsed_args.cli:
             self._cli_override_args()
         self._validate()
-        self._debug_pretty_print()
         return self
 
     def _assign_args(self, args):
@@ -65,7 +62,6 @@ class ArgumentParser:
         self.construct = args.construct
         self.run = args.run
         self.part = args.part
-        self.debug = args.debug
 
     def _validate(self):
         if self.day < 1 or self.day > 25:
@@ -76,15 +72,6 @@ class ArgumentParser:
             raise ArgumentException('One of the construct or run modes needs to be selected. Not both nor none of them')
         if self.part < 0 or self.part > 2:
             raise ArgumentException('Part needs to be a number <0,2>')
-
-    def _pretty_print(self):
-        for key in self.__slots__:
-            print(CC.YELLOW, key, CC.NC, ': ', getattr(self, key), sep='')
-        print()
-
-    def _debug_pretty_print(self):
-        if self.debug:
-            self._pretty_print()
 
     def _cli_override_args(self):
         day = input('What day?\n')
@@ -115,7 +102,3 @@ class ArgumentParser:
                 self.part = int(part)
             except ValueError:
                 raise ArgumentException('Part needs to be integer.')
-
-        debug = input('Debug mode? y/n (Blank for no)\n')
-        if debug == 'y':
-            self.debug = True
