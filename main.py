@@ -1,7 +1,8 @@
-from old_helpers import CC, ArgumentException, ArgumentParser
-from scaffold_constructor import ScaffoldConstructor
-from runner import Runner
 from exceptions import RunException, ConstructionException
+from helpers import CC
+from old_helpers import ArgumentException, ArgumentParser
+from runner import Runner
+from scaffold_constructor import ScaffoldConstructor
 
 
 def main():
