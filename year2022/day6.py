@@ -1,14 +1,8 @@
-import os
 from typing import Union
+
 from abstract_day import AbstractDay
 from exceptions import RunException
-from old_helpers import CC
 from input_loader import InputLoader
-
-
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
 class DayRunner(AbstractDay):
@@ -21,12 +15,12 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         sequence = self.input_loader.load_input()
         result = self.part_one(sequence)
-        print_result(1, result)
+        return result
 
     def run_part_two(self):
         sequence = self.input_loader.load_input()
         result = self.part_two(sequence)
-        print_result(2, result)
+        return result
 
     def part_generalized(self, sequence: str, length: int) -> int:
         last_chars = []

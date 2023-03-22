@@ -1,17 +1,11 @@
-import os
 from typing import Union, List
+
 from abstract_day import AbstractDay
 from exceptions import RunException
-from old_helpers import CC
 from input_loader import InputLoader
 
 
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
-
-
-class LastInstructionException(Exception):
+class LastInstructionException(RunException):
     pass
 
 
@@ -102,9 +96,9 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         input_array = self.input_loader.load_input_array("\n")
         result = part_one(input_array, [20, 60, 100, 140, 180, 220], 220)
-        print_result(1, result)
+        return result
 
     def run_part_two(self):
         input_array = self.input_loader.load_input_array("\n")
         part_two(input_array, 40, 6)
-        print_result(2, 'See terminal')
+        return 'See terminal'

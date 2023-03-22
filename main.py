@@ -8,7 +8,7 @@ def main():
     try:
         args = ArgumentParser().parse()
         if args.run:
-            Runner.run(args.day, args.year, args.part)
+            Runner.run(args.day, args.year, args.part, args.timeit)
         else:
             ScaffoldConstructor.construct(args.day, args.year)
 

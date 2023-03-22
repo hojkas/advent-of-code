@@ -32,7 +32,7 @@ class ArgumentException(Exception):
 
 
 class ArgumentParser:
-    __slots__ = ['day', 'year', 'construct', 'run', 'part', 'debug']
+    __slots__ = ['day', 'year', 'construct', 'run', 'part', 'timeit']
 
     def parse(self):
         parser = argparse.ArgumentParser(description='AOC custom runner')
@@ -46,6 +46,8 @@ class ArgumentParser:
                             help='Run selected day.')
         parser.add_argument('-p', '--part', dest='part', default=0, type=int,
                             help='Part to run when running day. 0 = both, 1 = part 1, 2 = part 2.')
+        parser.add_argument('-t', '--timeit', dest='timeit', default=False, action='store_true',
+                            help='When set to true, parts of the day that are run will be timed.')
 
         parsed_args = parser.parse_args()
         self._assign_args(parsed_args)
@@ -62,6 +64,7 @@ class ArgumentParser:
         self.construct = args.construct
         self.run = args.run
         self.part = args.part
+        self.timeit = args.timeit
 
     def _validate(self):
         if self.day < 1 or self.day > 25:
@@ -102,3 +105,6 @@ class ArgumentParser:
                 self.part = int(part)
             except ValueError:
                 raise ArgumentException('Part needs to be integer.')
+
+            timeit = input('Should the part execution be timed? y/n (Blank for no)\n')
+            self.timeit = True if timeit == 'y' else False

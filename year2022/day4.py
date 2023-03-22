@@ -1,14 +1,7 @@
-import os
 from typing import Union
+
 from abstract_day import AbstractDay
-from exceptions import RunException
-from old_helpers import CC
 from input_loader import InputLoader
-
-
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
 class ElfSection:
@@ -70,9 +63,9 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         input_array = self.input_loader.load_input_array(item_separator='\n')
         result = part_one(input_array)
-        print_result(1, result)
+        return result
 
     def run_part_two(self):
         input_array = self.input_loader.load_input_array(item_separator='\n')
         result = part_two(input_array)
-        print_result(2, result)
+        return result

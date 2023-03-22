@@ -2,10 +2,12 @@ from datetime import datetime
 
 
 def timethis(func):
-    def inner1(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         before = datetime.now()
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
         after = datetime.now()
-        print("[", after, "] '", func.__name__, "' took ", after - before, sep="")
+        print("[", after.strftime("%H:%M:%S"), "] '", func.__name__, "' took ", (after - before).total_seconds(),
+              " seconds.", sep="")
+        return result
 
-    return inner1
+    return wrapper

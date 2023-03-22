@@ -1,15 +1,9 @@
-import os
+from abc import abstractmethod, ABC
 from typing import Union
+
 from abstract_day import AbstractDay
 from exceptions import RunException
-from old_helpers import CC
 from input_loader import InputLoader
-from abc import abstractmethod, ABC
-
-
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
 class Item(ABC):
@@ -195,11 +189,11 @@ class DayRunner(AbstractDay):
         command_array = self.input_loader.load_input_array('\n')
         file_tree = construct_file_tree(command_array)
         result = part_one(file_tree)
-        print_result(1, result)
+        return result
 
     def run_part_two(self):
         command_array = self.input_loader.load_input_array('\n')
         file_tree = construct_file_tree(command_array)
         result = part_two(file_tree)
-        print_result(2, result)
+        return result
 

@@ -1,14 +1,6 @@
-import os
 from typing import Union
 from abstract_day import AbstractDay
-from exceptions import RunException
-from old_helpers import CC
 from input_loader import InputLoader
-
-
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
 def _part_one(input_array):
@@ -44,11 +36,9 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         input_array = self.input_loader.load_input_array_of_array(subarray_separator='\n\n',
                                                                   item_separator='\n', retype_item_to_int=True)
-        result = _part_one(input_array)
-        print_result(1, result)
+        return _part_one(input_array)
 
     def run_part_two(self):
         input_array = self.input_loader.load_input_array_of_array(subarray_separator='\n\n',
                                                                   item_separator='\n', retype_item_to_int=True)
-        result = _part_two(input_array)
-        print_result(2, result)
+        return _part_two(input_array)

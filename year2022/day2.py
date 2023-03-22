@@ -1,9 +1,8 @@
-import os
 from enum import Enum
 from typing import Union
+
 from abstract_day import AbstractDay
 from exceptions import RunException
-from old_helpers import CC
 from input_loader import InputLoader
 
 
@@ -17,11 +16,6 @@ class RoundResult(Enum):
     DEFEAT = 1,
     DRAW = 2,
     WIN = 3
-
-
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
 def points_for_symbol(symbol):
@@ -126,12 +120,12 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         input_array = self.input_loader.load_input_array(item_separator='\n')
         result = self._part_one(input_array)
-        print_result(1, result)
+        return result
 
     def run_part_two(self):
         input_array = self.input_loader.load_input_array(item_separator='\n')
         result = self._part_two(input_array)
-        print_result(2, result)
+        return result
 
     def _part_one(self, input_array):
         tournament_points = 0

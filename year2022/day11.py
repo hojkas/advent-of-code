@@ -1,12 +1,8 @@
-import logging
-import os
 import re
-from datetime import datetime
 from typing import Union
+
 from abstract_day import AbstractDay
 from exceptions import RunException
-from old_helpers import CC
-from helpers.timethis import timethis
 from input_loader import InputLoader
 
 MAX_EFFECTIVE_WORRY_LEVEL = 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19
@@ -18,11 +14,6 @@ def regex_get(regex, string):
     if match and len(match.groups()) > 0:
         return match.group(1)
     raise RunException("Regex '" + regex + "' failed to find match in '" + string + "'.")
-
-
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
 
 
 class Monkey:
@@ -165,9 +156,9 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         input_array = self.input_loader.load_input_array("\n\n")
         result = part_one(input_array)
-        print_result(1, result)
+        return result
 
     def run_part_two(self):
         input_array = self.input_loader.load_input_array("\n\n")
         result = part_two(input_array)
-        print_result(2, result)
+        return result
