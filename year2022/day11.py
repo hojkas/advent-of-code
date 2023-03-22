@@ -1,39 +1,23 @@
-import logging
-import os
-import re
-from datetime import datetime
 from typing import Union
+
 from abstract_day import AbstractDay
-from exceptions import RunException
-from old_helpers import CC
-from helpers.timethis import timethis
 from input_loader import InputLoader
+from helpers import regex_extract
+
 
 MAX_EFFECTIVE_WORRY_LEVEL = 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19
 next_item_id = 0
 
 
-def regex_get(regex, string):
-    match = re.search(regex, string)
-    if match and len(match.groups()) > 0:
-        return match.group(1)
-    raise RunException("Regex '" + regex + "' failed to find match in '" + string + "'.")
-
-
-def print_result(part, result):
-    filename = os.path.basename(__file__).split('.')[0]
-    print('[', filename, '] ', CC.GREEN, 'Result of part ', part, CC.NC, ': ', result, sep='')
-
-
 class Monkey:
     def __init__(self, monkey_string, cooldown_after_inspection=True):
         monkey_lines = monkey_string.split("\n")
-        self.id = int(regex_get(r"Monkey (\d+):", monkey_lines[0]))
-        self.items = [Item(int(x)) for x in regex_get(r"Starting items: (.*?)$", monkey_lines[1]).split(", ")]
-        self.operation = regex_get(r"Operation: new = (.*?)$", monkey_lines[2])
-        self.test_divisible_by = int(regex_get(r"Test: divisible by (\d+)$", monkey_lines[3]))
-        self.test_true_monkey = int(regex_get(r"If true: throw to monkey (\d+)$", monkey_lines[4]))
-        self.test_false_monkey = int(regex_get(r"If false: throw to monkey (\d+)$", monkey_lines[5]))
+        self.id = int(regex_extract(r"Monkey (\d+):", monkey_lines[0]))
+        self.items = [Item(int(x)) for x in regex_extract(r"Starting items: (.*?)$", monkey_lines[1]).split(", ")]
+        self.operation = regex_extract(r"Operation: new = (.*?)$", monkey_lines[2])
+        self.test_divisible_by = int(regex_extract(r"Test: divisible by (\d+)$", monkey_lines[3]))
+        self.test_true_monkey = int(regex_extract(r"If true: throw to monkey (\d+)$", monkey_lines[4]))
+        self.test_false_monkey = int(regex_extract(r"If false: throw to monkey (\d+)$", monkey_lines[5]))
         self.monkey_map = None
         self.inspections = 0
         self.turn_inspections_history = []
@@ -158,24 +142,16 @@ def part_two(input_array):
 class DayRunner(AbstractDay):
     def __init__(self):
         self.input_loader: Union[InputLoader, None] = None
-        self.debug_mode = False
-
-    def dbg(self, *args, **kwargs):
-        if self.debug_mode:
-            print(*args, **kwargs)
 
     def add_input_loader(self, input_loader):
         self.input_loader = input_loader
 
-    def use_debug(self, use_debug=False):
-        self.debug_mode = use_debug
-
     def run_part_one(self):
         input_array = self.input_loader.load_input_array("\n\n")
         result = part_one(input_array)
-        print_result(1, result)
+        return result
 
     def run_part_two(self):
         input_array = self.input_loader.load_input_array("\n\n")
         result = part_two(input_array)
-        print_result(2, result)
+        return result

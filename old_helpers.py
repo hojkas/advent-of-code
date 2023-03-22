@@ -2,19 +2,6 @@ import argparse
 import json
 
 
-class CommandlineColors:
-    BLACK = "\033[0;30m"
-    RED = "\033[0;31m"
-    GREEN = "\033[0;32m"
-    YELLOW = "\033[0;33m"
-    WHITE = "\033[0;37m"
-    NC = "\033[0m"
-    NOCOLOR = "\033[0m"
-
-
-CC = CommandlineColors()
-
-
 class Config:
     def __init__(self):
         with open('config.json', 'r') as f:
@@ -32,7 +19,7 @@ class ArgumentException(Exception):
 
 
 class ArgumentParser:
-    __slots__ = ['day', 'year', 'construct', 'run', 'part', 'debug']
+    __slots__ = ['day', 'year', 'construct', 'run', 'part', 'timeit']
 
     def parse(self):
         parser = argparse.ArgumentParser(description='AOC custom runner')
@@ -46,15 +33,14 @@ class ArgumentParser:
                             help='Run selected day.')
         parser.add_argument('-p', '--part', dest='part', default=0, type=int,
                             help='Part to run when running day. 0 = both, 1 = part 1, 2 = part 2.')
-        parser.add_argument('-v', '--verbose', '--debug', dest='debug', action='store_true', default=False,
-                            help='Write debug messages.')
+        parser.add_argument('-t', '--timeit', dest='timeit', default=False, action='store_true',
+                            help='When set to true, parts of the day that are run will be timed.')
 
         parsed_args = parser.parse_args()
         self._assign_args(parsed_args)
         if parsed_args.cli:
             self._cli_override_args()
         self._validate()
-        self._debug_pretty_print()
         return self
 
     def _assign_args(self, args):
@@ -65,7 +51,7 @@ class ArgumentParser:
         self.construct = args.construct
         self.run = args.run
         self.part = args.part
-        self.debug = args.debug
+        self.timeit = args.timeit
 
     def _validate(self):
         if self.day < 1 or self.day > 25:
@@ -76,15 +62,6 @@ class ArgumentParser:
             raise ArgumentException('One of the construct or run modes needs to be selected. Not both nor none of them')
         if self.part < 0 or self.part > 2:
             raise ArgumentException('Part needs to be a number <0,2>')
-
-    def _pretty_print(self):
-        for key in self.__slots__:
-            print(CC.YELLOW, key, CC.NC, ': ', getattr(self, key), sep='')
-        print()
-
-    def _debug_pretty_print(self):
-        if self.debug:
-            self._pretty_print()
 
     def _cli_override_args(self):
         day = input('What day?\n')
@@ -116,6 +93,5 @@ class ArgumentParser:
             except ValueError:
                 raise ArgumentException('Part needs to be integer.')
 
-        debug = input('Debug mode? y/n (Blank for no)\n')
-        if debug == 'y':
-            self.debug = True
+            timeit = input('Should the part execution be timed? y/n (Blank for no)\n')
+            self.timeit = True if timeit == 'y' else False

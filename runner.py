@@ -1,3 +1,5 @@
+from helpers import pretty_print_result
+from helpers import timethis
 from importlib import import_module
 from abstract_day import AbstractDay
 from exceptions import RunException
@@ -24,11 +26,18 @@ class Runner:
         return InputLoader(filepath)
 
     @staticmethod
-    def run(day, year, part, debug):
+    def _run_with_conditioned_timing(func, timeit):
+        if timeit:
+            func = timethis(func)
+        return func()
+
+    @staticmethod
+    def run(day, year, part, timeit):
         runner = Runner._import_day_runner(day, year)
         runner.add_input_loader(Runner._construct_input_loader(day, year))
-        runner.use_debug(debug)
         if part == 0 or part == 1:
-            runner.run_part_one()
+            result = Runner._run_with_conditioned_timing(runner.run_part_one, timeit)
+            pretty_print_result(year, day, 1, result)
         if part == 0 or part == 2:
-            runner.run_part_two()
+            result = Runner._run_with_conditioned_timing(runner.run_part_two, timeit)
+            pretty_print_result(year, day, 2, result)

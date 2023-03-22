@@ -6,7 +6,7 @@ from exceptions import ConstructionException
 
 class ScaffoldConstructor:
     @staticmethod
-    def _scaffold_year(yeardir, debug):
+    def _scaffold_year(yeardir):
         os.mkdir(yeardir)
         init_path = yeardir + sep + '__init__.py'
         with open(init_path, 'w'):
@@ -16,7 +16,7 @@ class ScaffoldConstructor:
         copyfile(template_readme_path, target_readme_path)
 
     @staticmethod
-    def _scaffold_day(yeardir, day, debug):
+    def _scaffold_day(yeardir, day):
         input_path = yeardir + sep + 'day' + str(day) + '_input'
         template_day_path = 'templates/day_template.py'
         target_day_path = yeardir + sep + 'day' + str(day) + '.py'
@@ -31,12 +31,12 @@ class ScaffoldConstructor:
         copyfile(template_day_path, target_day_path)
 
     @staticmethod
-    def construct(day, year, debug):
+    def construct(day, year):
         yeardir = os.curdir + sep + 'year' + str(year)
         if os.path.isdir(yeardir):
-            ScaffoldConstructor._scaffold_day(yeardir, day, debug)
+            ScaffoldConstructor._scaffold_day(yeardir, day)
         elif not os.path.exists(yeardir):
-            ScaffoldConstructor._scaffold_year(yeardir, debug)
-            ScaffoldConstructor._scaffold_day(yeardir, day, debug)
+            ScaffoldConstructor._scaffold_year(yeardir)
+            ScaffoldConstructor._scaffold_day(yeardir, day)
         else:
             raise ConstructionException(yeardir + ' needs to be dir, not file.')
