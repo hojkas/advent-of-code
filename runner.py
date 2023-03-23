@@ -3,7 +3,7 @@ from helpers import timethis
 from importlib import import_module
 from abstract_day import AbstractDay
 from exceptions import RunException
-from input_loader import InputLoader
+from helpers.input_loader import InputLoader
 from os.path import sep
 import pathlib
 
@@ -12,7 +12,7 @@ class Runner:
     @staticmethod
     def _import_day_runner(day, year) -> AbstractDay:
         try:
-            module_name = 'year' + str(year) + '.day' + str(day)
+            module_name = 'year' + str(year) + '.days.day' + str(day)
             module = import_module(module_name)
             the_class = getattr(module, 'DayRunner')
             return the_class()
@@ -21,7 +21,7 @@ class Runner:
 
     @staticmethod
     def _construct_input_loader(day, year) -> InputLoader:
-        local_filepath = '.' + sep + 'year' + str(year) + sep + 'day' + str(day) + '_input'
+        local_filepath = '.' + sep + 'year' + str(year) + sep + 'inputs' + sep + 'day' + str(day) + '_input'
         filepath = pathlib.Path(local_filepath).resolve()
         return InputLoader(filepath)
 

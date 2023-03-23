@@ -4,3 +4,7 @@ class RunException(Exception):
 
 class ConstructionException(Exception):
     pass
+
+
+class ArgumentException(Exception):
+    pass
