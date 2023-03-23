@@ -1,7 +1,7 @@
 from typing import Union
 
 from abstract_day import AbstractDay
-from input_loader import InputLoader
+from helpers.input_loader import InputLoader
 
 
 class Tree:

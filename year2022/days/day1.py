@@ -1,6 +1,6 @@
 from typing import Union
 from abstract_day import AbstractDay
-from input_loader import InputLoader
+from helpers.input_loader import InputLoader
 
 
 def _part_one(input_array):

@@ -2,7 +2,7 @@ from typing import Union, List
 
 from abstract_day import AbstractDay
 from exceptions import RunException
-from input_loader import InputLoader
+from helpers.input_loader import InputLoader
 
 
 class LastInstructionException(RunException):
