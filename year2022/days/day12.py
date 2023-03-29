@@ -44,9 +44,9 @@ class Map:
     def __init__(self, input_array):
         self.row_count = len(input_array)
         self.col_count = len(input_array[0])
-        self.fields = []
-        self.start = None
-        self.end = None
+        self.fields: list[list[Field]] = []
+        self.start: Union[Field, None] = None
+        self.end: Union[Field, None] = None
         self._load_fields(input_array)
         self._find_start_and_end()
 
@@ -159,7 +159,7 @@ class RouteFinder:
 
             self.routes_to_check.append(new_route)
 
-    def find_route(self):
+    def find_best_route_from_start(self):
         current_field = self.map.start
         default_route = Route()
         default_route.add_visited(current_field)
@@ -174,6 +174,34 @@ class RouteFinder:
         return self.best_route_cost
 
 
+def find_possible_start_fields(field_map):
+    starts = []
+    for row in field_map.fields:
+        for field in row:
+            if field.height == 0:
+                starts.append(field)
+    return starts
+
+
+def part_two(field_map):
+    all_possible_starts = find_possible_start_fields(field_map)
+    field_map.start.start = False  # resets the fields flag that it is a start
+
+    best_route = None
+    for possible_start in all_possible_starts:
+        field_map.start = possible_start
+        possible_start.start = True
+
+        route_cost = RouteFinder(field_map).find_best_route_from_start()
+        if not best_route:
+            best_route = route_cost
+        if route_cost and route_cost < best_route:
+            best_route = route_cost
+
+        possible_start.start = False
+    return best_route
+
+
 class DayRunner(AbstractDay):
     def __init__(self):
         self.input_loader: Union[InputLoader, None] = None
@@ -184,8 +212,11 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         input_array = self.input_loader.load_input_array("\n")
         field_map = Map(input_array)
-        result = RouteFinder(field_map).find_route()
+        result = RouteFinder(field_map).find_best_route_from_start()
         return result
 
     def run_part_two(self):
-        return "---"
+        input_array = self.input_loader.load_input_array("\n")
+        field_map = Map(input_array)
+        result = part_two(field_map)
+        return result
