@@ -73,6 +73,14 @@ def load_packet_tuples(input_array):
     return packet_tuples
 
 
+def load_singular_packets(input_array):
+    packets = []
+    for line in input_array:
+        if len(line) != 0:
+            packets.append(eval(line))
+    return packets
+
+
 def part_one(input_packet_list):
     correct_indices = 0
     for packet_tuple in input_packet_list:
@@ -82,6 +90,21 @@ def part_one(input_packet_list):
         if result == Status.UNDECIDED:
             raise RuntimeError(f"At this point, the status should not be undecided. Packets: {packet_tuple}")
     return correct_indices
+
+
+def how_many_packets_before(new_packet, packet_list):
+    cnt = 0
+    for packet in packet_list:
+        comparison_status = compare_lists(packet, new_packet)
+        if comparison_status == Status.CORRECT:
+            cnt += 1
+    return cnt
+
+
+def part_two(packet_list):
+    index_of_two = how_many_packets_before([[2]], packet_list) + 1
+    index_of_six = how_many_packets_before([[6]], packet_list) + 2  # because it would be after two packet
+    return index_of_two * index_of_six
 
 
 class DayRunner(AbstractDay):
@@ -97,4 +120,6 @@ class DayRunner(AbstractDay):
         return result
 
     def run_part_two(self):
-        return "---"
+        input_packets = load_singular_packets(self.input_loader.load_input_array("\n"))
+        result = part_two(input_packets)
+        return result
