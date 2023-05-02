@@ -69,8 +69,12 @@ class Coordinate:
         self.sd = x + y  # side diagonale
 
     @staticmethod
+    def can_be_constructed_from_diagonal(md, sd):
+        return (sd - md) % 2 == 0
+
+    @staticmethod
     def from_diagonal(md, sd):
-        if (sd - md) % 2 != 0:
+        if not Coordinate.can_be_constructed_from_diagonal(md, sd):
             raise RunException(f"Invalid coordinates in cartesan space. md {md}, sd {sd}")
         y = 0.5 * (sd - md)
         x = md + y
@@ -103,6 +107,17 @@ class CartesianAndDiagonalSpaceBinding:
             return Range(-alt_boundary, alt_boundary)
         return Range(-boundary, boundary)
 
+    def max_md_possible_range_for_sd_range(self, sd_range: Range):
+        peak_sd = self.cartesian_max_value
+        if peak_sd in sd_range:
+            return self.md_possible_range_for_fixed_sd(peak_sd)
+        start_md_range = self.md_possible_range_for_fixed_sd(sd_range.start)
+        end_md_range = self.md_possible_range_for_fixed_sd(sd_range.end)
+        return start_md_range if len(start_md_range) > len(end_md_range) else end_md_range
+
+    def sd_possible_range(self):
+        return Range(0, 2*self.cartesian_max_value)
+
 
 class Sensor:
     def __init__(self, input_line):
@@ -117,6 +132,8 @@ class Sensor:
         self.diagonal_min_sd = self.position.sd - self.beacon_distance
         self.diagonal_max_sd = self.position.sd + self.beacon_distance
 
+        self.md_range = Range(self.diagonal_min_md, self.diagonal_max_md)
+
     def point_within_sensor(self, md, sd):
         return ((self.diagonal_min_md <= md <= self.diagonal_max_md) and
                 (self.diagonal_min_sd <= sd <= self.diagonal_max_sd))
@@ -127,6 +144,11 @@ class Sensor:
             return None
         x_wiggle_room = abs(x_wiggle_room)
         return Range(self.position.x - x_wiggle_room, self.position.x + x_wiggle_room)
+
+    def affected_range_on_sd(self, sd) -> Union[None, Range]:
+        if self.diagonal_min_sd <= sd <= self.diagonal_max_sd:
+            return Range(self.diagonal_min_md, self.diagonal_max_md)
+        return None
 
 
 def construct_sensors(input_array):
@@ -177,6 +199,44 @@ def part_one(sensors, distance_goal):
     return checked_points
 
 
+def find_not_covered_md(md_range: Range, scanner_md_ranges: list[Range]):
+    not_covered = []
+    scanner_md_ranges.sort(key=lambda x: x.start)
+    first_unscanned_md = md_range.start
+    for r in scanner_md_ranges:
+        if r.end < first_unscanned_md:
+            continue
+        elif r.start <= first_unscanned_md:
+            first_unscanned_md = r.end + 1
+        else:
+            not_covered.append(Range(first_unscanned_md, r.start - 1))
+            first_unscanned_md = r.end + 1
+
+    return not_covered
+
+
+def part_two(sensors, max_xy_value):
+    space = CartesianAndDiagonalSpaceBinding(max_xy_value)
+    sd_range = space.sd_possible_range()
+    sd = sd_range.start
+    unscanned = []
+    while sd <= sd_range.end:
+        md_range = space.md_possible_range_for_fixed_sd(sd)
+        sensor_md_ranges = [s.md_range for s in sensors if (s.diagonal_min_sd <= sd <= s.diagonal_max_sd)]
+        not_covered = find_not_covered_md(md_range, sensor_md_ranges)
+        if not_covered:
+            for r in not_covered:
+                for md in r:
+                    if Coordinate.can_be_constructed_from_diagonal(md, sd):
+                        unscanned.append(Coordinate.from_diagonal(md, sd))
+        sd += 1
+
+    if len(unscanned) == 1:
+        return int(unscanned[0].x * 4000000 + unscanned[0].y)
+    else:
+        raise RunException(unscanned)
+
+
 class DayRunner(AbstractDay):
     def __init__(self):
         self.input_loader: Union[InputLoader, None] = None
@@ -190,4 +250,6 @@ class DayRunner(AbstractDay):
         return result
 
     def run_part_two(self):
-        return "---"
+        sensors = construct_sensors(self.input_loader.load_input_array("\n"))
+        result = part_two(sensors, 4000000)
+        return result
