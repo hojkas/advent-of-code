@@ -1,6 +1,6 @@
 from typing import Union
 from abstract_day import AbstractDay
-from helpers.input_loader import InputLoader
+from helpers import InputLoader
 
 
 class DayRunner(AbstractDay):
