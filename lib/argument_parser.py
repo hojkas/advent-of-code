@@ -1,6 +1,6 @@
 import argparse
 
-from exceptions import ArgumentException
+from lib.exceptions import ArgumentException
 from config import Config
 
 
@@ -33,7 +33,7 @@ class ArgumentParser:
         config = Config()
 
         self.day = args.day
-        self.year = args.year if args.year else config['default_year']
+        self.year = args.year if args.year else config.default_year
         self.construct = args.construct
         self.run = args.run
         self.part = args.part

@@ -1,6 +1,6 @@
 import re
 
-from exceptions import RunException
+from lib.exceptions import RunException
 
 
 def regex_extract(regex, string):

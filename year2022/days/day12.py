@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Union
-from abstract_day import AbstractDay
+from lib.abstract_day import AbstractDay
 from helpers.input_loader import InputLoader
-from exceptions import RunException
+from lib.exceptions import RunException
 
 
 class OutOfBoundsError(RunException):

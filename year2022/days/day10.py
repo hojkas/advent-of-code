@@ -1,7 +1,7 @@
 from typing import Union, List
 
-from abstract_day import AbstractDay
-from exceptions import RunException
+from lib.abstract_day import AbstractDay
+from lib.exceptions import RunException
 from helpers.input_loader import InputLoader
 
 

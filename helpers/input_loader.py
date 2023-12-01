@@ -1,5 +1,5 @@
 import os
-from exceptions import RunException
+from lib.exceptions import RunException
 
 
 class InputLoader:
