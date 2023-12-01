@@ -1,11 +1,12 @@
+import pathlib
+from importlib import import_module
+from os.path import sep
+
 from helpers import pretty_print_result
 from helpers import timethis
-from importlib import import_module
-from abstract_day import AbstractDay
-from exceptions import RunException
 from helpers.input_loader import InputLoader
-from os.path import sep
-import pathlib
+from lib.abstract_day import AbstractDay
+from lib.exceptions import RunException
 
 
 class Runner:

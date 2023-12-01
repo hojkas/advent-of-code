@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Union
 
-from abstract_day import AbstractDay
+from lib.abstract_day import AbstractDay
 from helpers.input_loader import InputLoader
 
 

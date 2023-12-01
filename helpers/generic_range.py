@@ -1,4 +1,4 @@
-from exceptions import RunException
+from lib.exceptions import RunException
 
 
 class Range:
