@@ -12,7 +12,7 @@ class ScaffoldConstructor:
         init_path = yeardir + sep + '__init__.py'
         with open(init_path, 'w'):
             pass
-        template_readme_path = '../templates/year_readme_template.md'
+        template_readme_path = 'templates/year_readme_template.md'
         target_readme_path = yeardir + sep + 'README.md'
         copyfile(template_readme_path, target_readme_path)
         os.mkdir(yeardir + sep + 'days')
@@ -24,7 +24,7 @@ class ScaffoldConstructor:
     @staticmethod
     def _scaffold_day(yeardir, day):
         input_path = yeardir + sep + 'inputs' + sep + 'day' + str(day) + '_input'
-        template_day_path = '../templates/day_template.py'
+        template_day_path = 'templates/day_template.py'
         target_day_path = yeardir + sep + 'days' + sep + 'day' + str(day) + '.py'
 
         if os.path.exists(input_path):

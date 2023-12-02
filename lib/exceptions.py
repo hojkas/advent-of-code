@@ -2,9 +2,13 @@ class RunException(Exception):
     pass
 
 
-class ConstructionException(Exception):
+class ConstructionException(RunException):
     pass
 
 
-class ArgumentException(Exception):
+class ArgumentException(RunException):
+    pass
+
+
+class RegexNotFoundException(RunException):
     pass
