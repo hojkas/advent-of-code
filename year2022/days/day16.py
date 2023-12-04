@@ -76,119 +76,6 @@ class CaveMap:
         self.caves = [cave for cave in self.caves if not cave.useless]
 
 
-def part_one(cave_map: CaveMap, max_minutes: int):
-    starting_cave = [c for c in cave_map.caves if c.name == "AA"][0]
-    paths = [([starting_cave], 0, 0)]
-    total_pressure_releases = []
-    while len(paths) != 0:
-        path, minute, pressure_released = paths.pop(-1)
-        current_cave = path[-1]
-        not_explored_cave_distances = {cave: distance
-                                       for cave, distance in current_cave.cave_distances.items() if cave not in path}
-
-        # last cave
-        if len(not_explored_cave_distances) == 0 or minute >= max_minutes:
-            total_pressure_releases.append(pressure_released)
-            continue
-
-        # not last cave
-        for cave, distance in not_explored_cave_distances.items():
-            temp_minute = minute + distance + 1
-            if temp_minute > max_minutes:
-                total_pressure_releases.append(pressure_released)
-                continue
-            temp_pressure_released = pressure_released + cave.flow * (max_minutes - temp_minute)
-            new_path = path.copy()
-            new_path.append(cave)
-            paths.append((new_path, temp_minute, temp_pressure_released))
-
-    total_pressure_releases.sort()
-    return total_pressure_releases[-1]
-
-
-class Actor:
-    def __init__(self, current_cave):
-        self.cave = current_cave
-        self.on_route = False
-        self.time_till_arrival = 0
-
-    def depart_for(self, cave, distance):
-        self.cave = cave
-        self.on_route = True
-        self.time_till_arrival = distance
-
-    def pass_minute(self):
-        if self.on_route:
-            self.time_till_arrival -= 1
-            if self.time_till_arrival == 0:
-                self.on_route = False
-
-    def __copy__(self):
-        new = Actor(self.cave)
-        new.on_route = self.on_route
-        new.time_till_arrival = self.time_till_arrival
-        return new
-
-
-class PossiblePath:
-    def __init__(self, starting_cave, time_left):
-        self.starting_cave = starting_cave
-        self.explored_caves = [starting_cave]
-        self.opened_caves = [starting_cave]
-        self.pressure_released = 0
-        self.person = Actor(starting_cave)
-        self.elephant = Actor(starting_cave)
-        self.time_left = time_left
-
-    def __copy__(self):
-        new = PossiblePath(self.starting_cave, self.time_left)
-        new.explored_caves = self.explored_caves.copy()
-        new.person = self.person.__copy__()
-        new.elephant = self.elephant.__copy__()
-        new.pressure_released = self.pressure_released
-        new.opened_caves = self.opened_caves.copy()
-        return new
-
-
-def find_possible_paths(curr_path, unexplored_paths, finished_paths, cave_map):
-    while curr_path.person.on_route and curr_path.elephant.on_route:
-        curr_path.time_left -= 1
-        curr_path.person.pass_minute()
-        curr_path.elephant.pass_minute()
-
-    # Time is up
-    if curr_path.time_left <= 0:
-        finished_paths.append(curr_path)
-        return
-
-    prep_paths = []
-
-    if not curr_path.person.on_route:
-        # turn the valve if not yet done
-        if curr_path.person.cave not in curr_path.opened_caves:
-            pass
-
-        # or explore more
-        for cave in cave_map:
-            if cave in curr_path.explored_caves:
-                continue
-            new_path = curr_path.__copy__()
-            new_path.explored_caves.append(cave)
-            new_path.person.depart_for(cave, curr_path.person.cave.cave_distances[cave])
-
-
-
-def part_two(cave_map: CaveMap, max_minutes: int):
-    starting_cave = [c for c in cave_map.caves if c.name == "AA"][0]
-    unexplored_paths = [PossiblePath(starting_cave, max_minutes)]
-    finished_paths = []
-    while len(unexplored_paths) != 0:
-        curr_path = unexplored_paths.pop(0)
-        find_possible_paths(curr_path, unexplored_paths, finished_paths, cave_map)
-
-    return max([path.pressure_released for path in finished_paths])
-
-
 class DayRunner(AbstractDay):
     def __init__(self):
         self.input_loader: Union[InputLoader, None] = None
@@ -198,10 +85,10 @@ class DayRunner(AbstractDay):
 
     def run_part_one(self):
         cave_map = CaveMap(self.input_loader.load_input_array("\n"))
-        result = part_one(cave_map, 30)
-        return result
+        # result = part_one(cave_map, 30)
+        return "---"
 
     def run_part_two(self):
         cave_map = CaveMap(self.input_loader.load_input_array("\n"))
-        result = part_two(cave_map, 26)
+        # result = part_two(cave_map, 26)
         return "---"
