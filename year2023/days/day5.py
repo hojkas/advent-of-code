@@ -3,6 +3,7 @@ from typing import Union, Optional
 from dataclasses import dataclass, field
 
 from lib.abstract_day import AbstractDay
+from lib.exceptions import RunException
 from helpers import InputLoader
 
 
@@ -17,6 +18,29 @@ class ItemType(Enum):
     LOCATION = 8
 
 
+ITEM_TYPES_ASCENDING = [
+    ItemType.SEED,
+    ItemType.SOIL,
+    ItemType.FERTILIZER,
+    ItemType.WATER,
+    ItemType.LIGHT,
+    ItemType.TEMPERATURE,
+    ItemType.HUMIDITY,
+    ItemType.LOCATION,
+]
+
+ITEM_TYPES_DESCENDING = [
+    ItemType.LOCATION,
+    ItemType.HUMIDITY,
+    ItemType.TEMPERATURE,
+    ItemType.LIGHT,
+    ItemType.WATER,
+    ItemType.FERTILIZER,
+    ItemType.SOIL,
+    ItemType.SEED
+]
+
+
 @dataclass
 class Seed:
     seed_id: int
@@ -27,6 +51,29 @@ class Seed:
     temperature_id: Optional[int] = None
     humidity_id: Optional[int] = None
     location_id: Optional[int] = None
+
+
+@dataclass
+class SeedRangeItem:
+    first: int
+    last: int
+
+
+@dataclass
+class SeedRange:
+    items: dict[ItemType, Optional[SeedRangeItem]]
+
+    def __init__(self):
+        self.items = {
+            ItemType.LOCATION: None,
+            ItemType.HUMIDITY: None,
+            ItemType.TEMPERATURE: None,
+            ItemType.LIGHT: None,
+            ItemType.WATER: None,
+            ItemType.FERTILIZER: None,
+            ItemType.SOIL: None,
+            ItemType.SEED: None,
+        }
 
 
 @dataclass
@@ -55,6 +102,23 @@ class ConversionMaps:
     temperature_to_humidity: ConversionMap
     humidity_to_location: ConversionMap
 
+    def get_by_type(self, source_item_type: ItemType, destination_item_type: ItemType):
+        if source_item_type == ItemType.SEED and destination_item_type == ItemType.SOIL:
+            return self.seed_to_soil
+        if source_item_type == ItemType.SOIL and destination_item_type == ItemType.FERTILIZER:
+            return self.soil_to_fertilizer
+        if source_item_type == ItemType.FERTILIZER and destination_item_type == ItemType.WATER:
+            return self.fertilizer_to_water
+        if source_item_type == ItemType.WATER and destination_item_type == ItemType.LIGHT:
+            return self.water_to_light
+        if source_item_type == ItemType.LIGHT and destination_item_type == ItemType.TEMPERATURE:
+            return self.light_to_temperature
+        if source_item_type == ItemType.TEMPERATURE and destination_item_type == ItemType.HUMIDITY:
+            return self.temperature_to_humidity
+        if source_item_type == ItemType.HUMIDITY and destination_item_type == ItemType.LOCATION:
+            return self.humidity_to_location
+        raise RunException(f"Unknown type {source_item_type} to {destination_item_type}")
+
 
 class DayRunner(AbstractDay):
     def __init__(self):
@@ -72,7 +136,12 @@ class DayRunner(AbstractDay):
         return result
 
     def run_part_two(self):
-        return "---"
+        input_list = self.input_loader.load_input_array(item_separator="\n\n")
+        seed_ranges = load_seed_ranges(input_list[0])
+        conversion_maps = load_conversion_maps(input_list[1:])
+        filled_seed_ranges = fill_seed_ranges_information(seed_ranges, conversion_maps)
+        result = find_lowest_location_in_seed_ranges(filled_seed_ranges)
+        return result
 
 
 def load_seeds(line_with_seeds: str) -> list[Seed]:
@@ -102,6 +171,13 @@ def get_conversion(source_id: int, conversion_map: ConversionMap):
         if conversion_item.source_start <= source_id <= conversion_item.source_end:
             return source_id + conversion_item.destination_offset
     return source_id
+
+
+def get_conversion_offset(source_id: int, conversion_map: ConversionMap) -> int:
+    for conversion_item in conversion_map.conversions:
+        if conversion_item.source_start <= source_id <= conversion_item.source_end:
+            return conversion_item.destination_offset
+    return 0
 
 
 def load_conversion_maps(input_list: list[str]) -> ConversionMaps:
@@ -136,3 +212,142 @@ def find_lowest_location(seeds: list[Seed]) -> int:
     location_ids = [seed.location_id for seed in seeds]
     location_ids.sort()
     return location_ids[0]
+
+
+def load_seed_ranges(input_line: str) -> list[SeedRange]:
+    seed_ranges = []
+    input_array = input_line.split(" ")[1:]
+    for i in range(0, len(input_array), 2):
+        new_seed_range = SeedRange()
+        first_id = int(input_array[i])
+        last_id = first_id + int(input_array[i + 1]) - 1
+        new_seed_range.items[ItemType.SEED] = SeedRangeItem(first=first_id, last=last_id)
+        seed_ranges.append(new_seed_range)
+    return seed_ranges
+
+
+def fill_seed_ranges_information(original_seed_ranges: list[SeedRange],
+                                 conversion_maps: ConversionMaps) -> list[SeedRange]:
+    new_seed_ranges = []
+    for seed_range in original_seed_ranges:
+        fill_seed_range_information(seed_range, new_seed_ranges, ItemType.SEED, ItemType.SOIL, conversion_maps)
+    return new_seed_ranges
+
+
+def fill_seed_range_information(seed_range: SeedRange,
+                                finished_seed_ranges: list[SeedRange],
+                                item_type_already_filled: ItemType,
+                                item_type_to_fill: ItemType,
+                                conversion_maps: ConversionMaps) -> None:
+    future_item_type = get_next_item_type(item_type_to_fill)
+    # find points where the conversion changes within the range
+    real_cutoff_points = find_range_cutoff_points(conversion_maps, item_type_already_filled, item_type_to_fill,
+                                                  seed_range)
+    real_cutoff_points.sort()
+    # split the range by those points
+    new_seed_ranges_to_explore = cut_range_by_points(seed_range, real_cutoff_points, item_type_already_filled)
+
+    # update seed ranges - calculate the value of next layer ids
+    calculate_next_item_type_layer(new_seed_ranges_to_explore, item_type_already_filled, item_type_to_fill,
+                                   conversion_maps)
+
+    # decide on next steps
+    if future_item_type is None:  # this is the last layer
+        for new_seed_range in new_seed_ranges_to_explore:
+            finished_seed_ranges.append(new_seed_range)
+            return
+
+    # not the last layer - run this function again for each new range created
+    for new_seed_range in new_seed_ranges_to_explore:
+        fill_seed_range_information(
+            new_seed_range, finished_seed_ranges, item_type_to_fill, future_item_type, conversion_maps)
+
+
+def calculate_next_item_type_layer(new_seed_ranges_to_explore, item_type_already_filled, item_type_to_fill,
+                                   conversion_maps):
+    for new_seed_range in new_seed_ranges_to_explore:
+        conversion_offset_to_apply = get_conversion_offset(
+            new_seed_range.items[item_type_already_filled].first,
+            conversion_maps.get_by_type(item_type_already_filled, item_type_to_fill))
+        conversion_to_apply_doublecheck = get_conversion_offset(
+            new_seed_range.items[item_type_already_filled].last,
+            conversion_maps.get_by_type(item_type_already_filled, item_type_to_fill))
+        if conversion_offset_to_apply != conversion_to_apply_doublecheck:
+            raise RunException("Should have been the same conversion rule")
+        new_seed_range.items[item_type_to_fill] = SeedRangeItem(
+            first=new_seed_range.items[item_type_already_filled].first + conversion_offset_to_apply,
+            last=new_seed_range.items[item_type_already_filled].last + conversion_offset_to_apply
+        )
+
+
+def cut_range_by_points(seed_range, real_cutoff_points, item_type_already_filled):
+    new_seed_ranges_to_explore = []
+    current_range = seed_range
+    last_cutoff_point = None
+    for cutoff_point in real_cutoff_points:
+        if cutoff_point == last_cutoff_point:
+            continue
+        last_cutoff_point = cutoff_point
+        first_range, second_range = split_seed_range(current_range, cutoff_point, item_type_already_filled)
+        new_seed_ranges_to_explore.append(first_range)
+        current_range = second_range
+    new_seed_ranges_to_explore.append(current_range)  # only this happens when no cutoff points present
+    return new_seed_ranges_to_explore
+
+
+def find_range_cutoff_points(conversion_maps, item_type_already_filled, item_type_to_fill, seed_range):
+    possible_cutoff_points = [
+                                 c.source_start - 1  # - 1 because we want to cut off after the element before it
+                                 for c in
+                                 conversion_maps.get_by_type(item_type_already_filled, item_type_to_fill).conversions
+                             ] + [
+                                 c.source_end
+                                 for c in
+                                 conversion_maps.get_by_type(item_type_already_filled, item_type_to_fill).conversions
+                             ]
+    real_cutoff_points = []
+    for possible_cutoff_point in possible_cutoff_points:
+        if (seed_range.items[item_type_already_filled].first
+                <= possible_cutoff_point
+                < seed_range.items[item_type_already_filled].last):
+            real_cutoff_points.append(possible_cutoff_point)
+    return real_cutoff_points
+
+
+def get_next_item_type(current_item_type: ItemType) -> Optional[ItemType]:
+    for i in range(len(ITEM_TYPES_ASCENDING) - 1):
+        if current_item_type == ITEM_TYPES_ASCENDING[i]:
+            return ITEM_TYPES_ASCENDING[i + 1]
+    return None
+
+
+def split_seed_range(seed_range: SeedRange, cut_after_id: int, cut_on_type: ItemType) -> (SeedRange, SeedRange):
+    cut_after_offset = 0
+    cutting_started = False
+    first_seed_range = SeedRange()
+    second_seed_range = SeedRange()
+
+    for item_type in ITEM_TYPES_DESCENDING:
+        if cutting_started or cut_on_type == item_type:
+            if not cutting_started:
+                if not (seed_range.items[item_type].first <= cut_after_id < seed_range.items[item_type].last):
+                    raise RunException(f"Invalid cut position. Cut_after_id: {cut_after_id}, "
+                                       f"cut_on_type: {cut_on_type}, seed_range: {seed_range}")
+                cutting_started = True
+                cut_after_offset = cut_after_id - seed_range.items[item_type].first
+            first_seed_range.items[item_type] = SeedRangeItem(
+                first=seed_range.items[item_type].first,
+                last=seed_range.items[item_type].first + cut_after_offset)
+            second_seed_range.items[item_type] = SeedRangeItem(
+                first=seed_range.items[item_type].first + cut_after_offset + 1,
+                last=seed_range.items[item_type].last)
+
+    return first_seed_range, second_seed_range
+
+
+def find_lowest_location_in_seed_ranges(seed_ranges: list[SeedRange]) -> int:
+    lowest = None
+    for seed_range in seed_ranges:
+        if not lowest or seed_range.items[ItemType.LOCATION].first < lowest:
+            lowest = seed_range.items[ItemType.LOCATION].first
+    return lowest
