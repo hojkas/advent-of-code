@@ -3,4 +3,4 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    default_year: int = 2023
+    default_year: int = 2024
