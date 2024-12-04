@@ -8,6 +8,7 @@ Due to the nature of the advent of code as small one-time puzzles, my solutions 
 
 | Year | Completion | Detail                        | Language(s) | AoC Web                                   |
 |------|------------|-------------------------------|-------------|-------------------------------------------|
-| 2021 | 11/25      | [readme](/year2021/README.md) | Python      | [AOC 2021](https://adventofcode.com/2021) |
-| 2022 | 15/25      | [readme](/year2022/README.md) | Python      | [AOC 2022](https://adventofcode.com/2022) |
-| 2023 | 9/25       | [readme](/year2023/README.md) | Python      | [AOC 2023](https://adventofcode.com/2023) |
+| 2021 | 11/25      | [readme](/year2021/README.md) | Python      | [AoC 2021](https://adventofcode.com/2021) |
+| 2022 | 15/25      | [readme](/year2022/README.md) | Python      | [AoC 2022](https://adventofcode.com/2022) |
+| 2023 | 11/25      | [readme](/year2023/README.md) | Python      | [AoC 2023](https://adventofcode.com/2023) |
+| 2024 | 0/25       | [readme](/year2024/README.md) | Python      | [AoC 2024](https://adventofcode.com/2024) |
