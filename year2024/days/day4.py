@@ -16,6 +16,31 @@ class CrosswordDirection(Enum):
     UP_LEFT = 7
 
 
+class ABox:
+    def __init__(self, up_left: str, up_right: str, down_left: str, down_right: str):
+        self.up_left = up_left
+        self.up_right = up_right
+        self.down_left = down_left
+        self.down_right = down_right
+
+    def is_xmas(self) -> bool:
+        count = 0
+        if self.up_left == "M":
+            if self.down_right == "S":
+                count += 1
+        elif self.up_left == "S":
+            if self.down_right == "M":
+                count += 1
+
+        if self.up_right == "M":
+            if self.down_left == "S":
+                count += 1
+        elif self.up_right == "S":
+            if self.down_left == "M":
+                count += 1
+        return count == 2
+
+
 class CrosswordMap:
     def __init__(self, crossword_array: list[list[str]]):
         self.crossword_rows = crossword_array
@@ -104,6 +129,20 @@ class CrosswordMap:
                 yield yield_item[::-1]
             row_col_offset += 1
 
+    def gather_a_boxes(self) -> Generator[ABox, None, None]:
+        row_count = len(self.crossword_rows)
+        col_count = len(self.crossword_rows[0])
+
+        for row_index, row in enumerate(self.crossword_rows):
+            for col_index, char in enumerate(row):
+                if char == "A" and 0 < row_index < row_count - 1 and 0 < col_index < col_count - 1:
+                    yield ABox(
+                        up_right=self.crossword_rows[row_index-1][col_index+1],
+                        up_left=self.crossword_rows[row_index-1][col_index-1],
+                        down_right=self.crossword_rows[row_index+1][col_index+1],
+                        down_left=self.crossword_rows[row_index+1][col_index-1],
+                    )
+
 
 class DayRunner(AbstractDay):
     def __init__(self):
@@ -119,10 +158,11 @@ class DayRunner(AbstractDay):
         return result
 
     def run_part_two(self):
-        return "---"
+        input_string_array = self.input_loader.load_input_array(item_separator="\n")
+        crossword_map = CrosswordMap(input_string_array)
+        result = sum(1 for abox in crossword_map.gather_a_boxes() if abox.is_xmas())
+        return result
 
-
-# 2080 too low
 
 def count_crosswords(crossword_map: CrosswordMap) -> int:
     matches = 0
