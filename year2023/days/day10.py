@@ -1,9 +1,8 @@
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
 from lib.abstract_day import AbstractDay
-from helpers import InputLoader
+from helpers import InputLoader, Direction
 from lib.exceptions import RunException
 
 
@@ -11,31 +10,6 @@ class NeighbourOutOfBoundsException(RunException):
     """
     Exception raised when a pipe seeks neighbour out of bounds.
     """
-
-
-class Direction(Enum):
-    UP = (-1, 0)
-    DOWN = (1, 0)
-    LEFT = (0, -1)
-    RIGHT = (0, 1)
-
-    @property
-    def opposite(self) -> 'Direction':
-        return {
-            Direction.UP: Direction.DOWN,
-            Direction.DOWN: Direction.UP,
-            Direction.LEFT: Direction.RIGHT,
-            Direction.RIGHT: Direction.LEFT
-        }[self]
-
-    @property
-    def next_clockwise(self) -> 'Direction':
-        return {
-            Direction.UP: Direction.RIGHT,
-            Direction.DOWN: Direction.LEFT,
-            Direction.LEFT: Direction.UP,
-            Direction.RIGHT: Direction.DOWN
-        }[self]
 
 
 class PipeType(Enum):
@@ -135,18 +109,18 @@ class OrientedPipe:
 
     def get_left_hand_directions(self):
         directions = []
-        curr_direction = self.entry_direction.next_clockwise
+        curr_direction = self.entry_direction.next_clockwise_cardinal
         while curr_direction != self.exit_direction:
             directions.append(curr_direction)
-            curr_direction = curr_direction.next_clockwise
+            curr_direction = curr_direction.next_clockwise_cardinal
         return directions
 
     def get_right_hand_directions(self):
         directions = []
-        curr_direction = self.exit_direction.next_clockwise
+        curr_direction = self.exit_direction.next_clockwise_cardinal
         while curr_direction != self.entry_direction:
             directions.append(curr_direction)
-            curr_direction = curr_direction.next_clockwise
+            curr_direction = curr_direction.next_clockwise_cardinal
         return directions
 
 
