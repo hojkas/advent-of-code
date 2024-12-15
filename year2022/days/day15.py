@@ -1,7 +1,8 @@
 from typing import Union
 from lib.abstract_day import AbstractDay
-from helpers import regex_extract_multiple, Range, InputLoader
+from helpers import regex_extract_multiple, InputLoader
 from lib.exceptions import RunException
+from lib.models import CustomRange as Range
 
 """
 DIAGONAL SPACE explanation
