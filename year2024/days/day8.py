@@ -21,20 +21,21 @@ class TerrainField(MapField):
 @dataclass
 class AntennaGroup:
     name: str
+    terrain_map: 'TerrainMap'
     positions: list[TerrainField] = field(default_factory=list)
     antinodes: list[TerrainField] = field(default_factory=list)
 
-    def calculate_antinodes(self, terrain_map: 'TerrainMap') -> None:
-        potential_antinodes = self._get_potential_antinode_coordinates()
+    def calculate_basic_antinodes(self) -> None:
+        potential_antinodes = self._get_potential_basic_antinode_coordinates()
         for potential_row, potential_col in potential_antinodes:
-            if terrain_map.coordinates_within_bounds(potential_row, potential_col):
-                self.antinodes.append(terrain_map.fields[potential_row][potential_col])
+            if self.terrain_map.coordinates_within_bounds(potential_row, potential_col):
+                self.antinodes.append(self.terrain_map.fields[potential_row][potential_col])
 
-    def _get_potential_antinode_coordinates(self) -> list[tuple[int, int]]:
+    def _get_potential_basic_antinode_coordinates(self) -> list[tuple[int, int]]:
         coordinates = set()
         for antenna_id, first_antenna in enumerate(self.positions[:-1]):
             for second_antenna in self.positions[antenna_id + 1:]:
-                first_coordinate, second_coordinate = self._compute_possible_antinodes_for_pair(
+                first_coordinate, second_coordinate = self._compute_possible_basic_antinodes_for_pair(
                     first_antenna, second_antenna
                 )
                 coordinates.add(first_coordinate)
@@ -42,7 +43,7 @@ class AntennaGroup:
         return list(coordinates)
 
     @staticmethod
-    def _compute_possible_antinodes_for_pair(
+    def _compute_possible_basic_antinodes_for_pair(
         first: TerrainField, second: TerrainField
     ) -> tuple[tuple[int, int], tuple[int, int]]:
         first_to_second_row_diff = second.row - first.row
@@ -50,6 +51,46 @@ class AntennaGroup:
         coordinate_after_second_item = (second.row + first_to_second_row_diff, second.col + first_to_second_col_diff)
         coordinate_before_first_item = (first.row - first_to_second_row_diff, first.col - first_to_second_col_diff)
         return coordinate_before_first_item, coordinate_after_second_item
+
+    def calculate_advanced_antinodes(self) -> None:
+        potential_antinodes = self._get_potential_advanced_antinode_coordinates()
+        for potential_row, potential_col in potential_antinodes:
+            self.antinodes.append(self.terrain_map.fields[potential_row][potential_col])
+
+    def _get_potential_advanced_antinode_coordinates(self) -> list[tuple[int, int]]:
+        coordinates = set()
+        for antenna_id, first_antenna in enumerate(self.positions[:-1]):
+            for second_antenna in self.positions[antenna_id + 1:]:
+                coordinates.update(
+                    self._compute_possible_advanced_antinode_coordinates_for_a_pair(first_antenna, second_antenna)
+                )
+        return list(coordinates)
+
+    def _compute_possible_advanced_antinode_coordinates_for_a_pair(
+        self, first: TerrainField, second: TerrainField
+    ) -> list[tuple[int, int]]:
+        row_diff = second.row - first.row
+        col_diff = second.col - first.col
+        # first one needs to be explicitly added, second will be hit in one direction section
+        coordinates = [(first.row, first.col)]
+
+        # one direction
+        current_row = first.row + row_diff
+        current_col = first.col + col_diff
+        while self.terrain_map.coordinates_within_bounds(current_row, current_col):
+            coordinates.append((current_row, current_col))
+            current_row += row_diff
+            current_col += col_diff
+
+        # other direction
+        current_row = first.row - row_diff
+        current_col = first.col - col_diff
+        while self.terrain_map.coordinates_within_bounds(current_row, current_col):
+            coordinates.append((current_row, current_col))
+            current_row -= row_diff
+            current_col -= col_diff
+
+        return coordinates
 
 
 @dataclass
@@ -65,14 +106,11 @@ class TerrainMap(MapRepresentation):
                 if field_item.type == FieldType.EMPTY:
                     continue
                 if field_item.antenna_name not in self.antenna_groups:
-                    antenna_group = AntennaGroup(field_item.antenna_name)
+                    antenna_group = AntennaGroup(name=field_item.antenna_name, terrain_map=self)
                     antenna_group.positions.append(field_item)
                     self.antenna_groups[field_item.antenna_name] = antenna_group
                 else:
                     self.antenna_groups[field_item.antenna_name].positions.append(field_item)
-
-        for antenna_group in self.antenna_groups.values():
-            antenna_group.calculate_antinodes(self)
 
 
 class DayRunner(AbstractDay):
@@ -84,14 +122,21 @@ class DayRunner(AbstractDay):
 
     def run_part_one(self):
         terrain_map = parse_terrain_map(self.input_loader.load_input_array("\n"))
-        return len({
-            (antinode.row, antinode.col)
-            for antenna_group in terrain_map.antenna_groups.values()
-            for antinode in antenna_group.antinodes
-        })
+        unique_antinodes = set()
+        for antenna_group in terrain_map.antenna_groups.values():
+            antenna_group.calculate_basic_antinodes()
+            for antinode in antenna_group.antinodes:
+                unique_antinodes.add((antinode.row, antinode.col))
+        return len(unique_antinodes)
 
     def run_part_two(self):
-        return "---"
+        terrain_map = parse_terrain_map(self.input_loader.load_input_array("\n"))
+        unique_antinodes = set()
+        for antenna_group in terrain_map.antenna_groups.values():
+            antenna_group.calculate_advanced_antinodes()
+            for antinode in antenna_group.antinodes:
+                unique_antinodes.add((antinode.row, antinode.col))
+        return len(unique_antinodes)
 
 
 def parse_terrain_map(raw_terrain_map: list[str]) -> TerrainMap:
