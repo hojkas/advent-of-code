@@ -1,9 +1,10 @@
 from enum import Enum
 from typing import Optional
 
+from helpers import InputLoader
 from lib.abstract_day import AbstractDay
-from helpers import InputLoader, Direction
 from lib.exceptions import RunException
+from lib.models import Direction
 
 
 class OutOfBoundsError(RunException):

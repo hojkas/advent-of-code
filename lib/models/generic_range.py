@@ -1,7 +1,7 @@
 from lib.exceptions import RunException
 
 
-class Range:
+class CustomRange:
     def __init__(self, start, end):
         if start > end:
             raise RunException(f"Start {start} cannot be bigger than end {end}")
