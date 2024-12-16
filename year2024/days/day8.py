@@ -4,7 +4,7 @@ from enum import Enum
 
 from helpers import InputLoader
 from lib.abstract_day import AbstractDay
-from lib.models import MapField, MapRepresentation
+from lib.models import GenericMapField, GenericMapRepresentation
 
 
 class FieldType(Enum):
@@ -13,7 +13,7 @@ class FieldType(Enum):
 
 
 @dataclass
-class TerrainField(MapField):
+class TerrainField(GenericMapField):
     type: FieldType
     antenna_name: Optional[str] = None
 
@@ -94,7 +94,7 @@ class AntennaGroup:
 
 
 @dataclass
-class TerrainMap(MapRepresentation):
+class TerrainMap(GenericMapRepresentation):
     fields: list[list[TerrainField]]  # to retype for type hints
     antenna_groups: dict[str, AntennaGroup] = field(default_factory=dict)
 
