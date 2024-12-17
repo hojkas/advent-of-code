@@ -11,18 +11,18 @@ class MapVector:
 
 
 @dataclass
-class MapField:
+class GenericMapField:
     row: int
     col: int
 
 
 @dataclass
-class MapRepresentation:
-    fields: list[list[MapField]]
+class GenericMapRepresentation:
+    fields: list[list[GenericMapField]]
     row_count: int
     col_count: int
 
-    def __init__(self, fields: list[list[MapField]]):
+    def __init__(self, fields: list[list[GenericMapField]]):
         self.fields = fields
         self.row_count = len(fields)
         self.col_count = len(fields[0])
@@ -36,7 +36,7 @@ class MapRepresentation:
         """
         return 0 <= row < self.row_count and 0 <= col < self.col_count
 
-    def get_next_field_in_direction(self, current_field: MapField, direction: Direction) -> MapField:
+    def get_next_field_in_direction(self, current_field: GenericMapField, direction: Direction) -> GenericMapField:
         """
         Fetch a field relative to current field in given direction.
         :param current_field:
@@ -47,7 +47,7 @@ class MapRepresentation:
         vector_from_direction = MapVector(row_diff=direction.value[0], col_diff=direction.value[1])
         return self.get_next_field_by_offset(current_field, vector_from_direction)
 
-    def get_next_field_by_offset(self, current_field: MapField, offset_vector: MapVector) -> MapField:
+    def get_next_field_by_offset(self, current_field: GenericMapField, offset_vector: MapVector) -> GenericMapField:
         """
         Fetch a field with row/col offset relative to current field.
         :param current_field:

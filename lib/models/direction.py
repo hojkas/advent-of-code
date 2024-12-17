@@ -67,3 +67,12 @@ class Direction(Enum):
             Direction.LEFT: Direction.DOWN_LEFT,
             Direction.UP_LEFT: Direction.LEFT,
         }[self]
+
+    @staticmethod
+    def get_cardinal() -> list['Direction']:
+        return [
+            Direction.UP,
+            Direction.RIGHT,
+            Direction.DOWN,
+            Direction.LEFT,
+        ]
