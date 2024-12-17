@@ -1,7 +1,7 @@
 from typing import Optional
 
-from lib.abstract_day import AbstractDay
 from helpers import InputLoader
+from lib.abstract_day import AbstractDay
 
 
 class DayRunner(AbstractDay):
