@@ -10,15 +10,16 @@ from lib.models import GenericMapField, GenericMapRepresentation, Direction
 @dataclass
 class MapField(GenericMapField):
     height: int
-    can_reach_peaks: list['MapField'] = field(default_factory=list)
+    can_reach_peaks_basic: list['MapField'] = field(default_factory=list)
+    peak_reachability_score: int = 0
 
     def add_reachable_peak(self, peak):
-        self.can_reach_peaks.append(peak)
+        self.can_reach_peaks_basic.append(peak)
 
     def add_reachable_peaks(self, peaks: list['MapField']):
         for peak in peaks:
-            if peak not in self.can_reach_peaks:
-                self.can_reach_peaks.append(peak)
+            if peak not in self.can_reach_peaks_basic:
+                self.can_reach_peaks_basic.append(peak)
 
     def is_peak(self):
         return self.height == 9
@@ -40,7 +41,9 @@ class TrailMap(GenericMapRepresentation):
         current_layer_to_continue = self.peaks.copy()
         current_layer_level = 9
         while current_layer_level > 0:
-            current_layer_to_continue = self._fill_next_layer_peak_reachability(current_layer_to_continue, current_layer_level)
+            current_layer_to_continue = self._fill_next_layer_peak_reachability(
+                current_layer_to_continue, current_layer_level
+            )
             current_layer_level -= 1
 
     def _fill_next_layer_peak_reachability(self, current_layer: list[MapField], current_level: int) -> list[MapField]:
@@ -55,8 +58,10 @@ class TrailMap(GenericMapRepresentation):
                         self.get_next_field_in_direction(current_field=map_field, direction=neighbouring_peak_direction)
                     )
                     if neighbouring_peak.height == sought_level:
-                        future_layer.append(neighbouring_peak)
-                        neighbouring_peak.add_reachable_peaks(map_field.can_reach_peaks)
+                        if neighbouring_peak not in future_layer:
+                            future_layer.append(neighbouring_peak)
+                        neighbouring_peak.add_reachable_peaks(map_field.can_reach_peaks_basic)
+                        neighbouring_peak.peak_reachability_score += map_field.peak_reachability_score
                 except OutOfBoundsError:
                     pass  # no peak next to it, nothing to check
 
@@ -73,10 +78,12 @@ class DayRunner(AbstractDay):
     def run_part_one(self):
         trail_map = parse_trail_map(self.input_loader.load_input_array("\n"))
         trail_map.fill_peak_reachability()
-        return sum(len(f.can_reach_peaks) for f in trail_map.trail_heads)
+        return sum(len(f.can_reach_peaks_basic) for f in trail_map.trail_heads)
 
     def run_part_two(self):
-        return "---"
+        trail_map = parse_trail_map(self.input_loader.load_input_array("\n"))
+        trail_map.fill_peak_reachability()
+        return sum(f.peak_reachability_score for f in trail_map.trail_heads)
 
 
 def parse_trail_map(lines: list[str]) -> TrailMap:
@@ -93,7 +100,8 @@ def parse_trail_map(lines: list[str]) -> TrailMap:
             if height == 0:
                 trail_map_trail_heads.append(map_field)
             elif height == 9:
-                map_field.can_reach_peaks.append(map_field)  # add self as reachable
+                map_field.can_reach_peaks_basic.append(map_field)  # add self as reachable
+                map_field.peak_reachability_score = 1  # can reach exactly one peak - itself
                 trail_map_peaks.append(map_field)
         trail_map_fields.append(line_fields)
 
