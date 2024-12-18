@@ -19,13 +19,17 @@ class GenericMapField:
 @dataclass
 class GenericMapRepresentation:
     fields: list[list[GenericMapField]]
-    row_count: int
-    col_count: int
 
     def __init__(self, fields: list[list[GenericMapField]]):
         self.fields = fields
-        self.row_count = len(fields)
-        self.col_count = len(fields[0])
+
+    @property
+    def row_count(self):
+        return len(self.fields)
+
+    @property
+    def col_count(self):
+        return len(self.fields[0])
 
     def coordinates_within_bounds(self, row, col) -> bool:
         """
@@ -35,6 +39,26 @@ class GenericMapRepresentation:
         :return: True if they are, false if not.
         """
         return 0 <= row < self.row_count and 0 <= col < self.col_count
+
+    def get_cardinal_neighbouring_fields(
+        self, current_field: GenericMapField, include_empty: bool = True
+    ) -> dict[Direction, GenericMapField]:
+        """
+        Get all neighbouring fields in cardinal directions of current field.
+        :param current_field:
+        :param include_empty: If true, fields out of bounds will return as None under direction key. If false, the direction
+        itself will be left out of keys.
+        :return: Dictionary where keys are directions and values the fields.
+        """
+        neighbours = {}
+        for direction in Direction.get_cardinal():
+            try:
+                field = self.get_next_field_in_direction(current_field, direction)
+                neighbours[direction] = field
+            except OutOfBoundsError:
+                if include_empty:
+                    neighbours[direction] = None
+        return neighbours
 
     def get_next_field_in_direction(self, current_field: GenericMapField, direction: Direction) -> GenericMapField:
         """
