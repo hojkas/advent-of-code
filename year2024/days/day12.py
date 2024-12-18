@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from functools import cache
 from typing import Optional, cast
 
 from helpers import InputLoader
@@ -7,10 +8,24 @@ from lib.models import GenericMapField, GenericMapRepresentation, Direction
 
 
 @dataclass
-class Fence:
+class FenceField:
     row: int
     col: int
     side: Direction
+
+
+@dataclass
+class HorizontalFence:
+    lies_before_row: int
+    runs_across_col: int
+    topside_is_out: bool
+
+
+@dataclass
+class VerticalFence:
+    lies_before_col: int
+    runs_across_row: int
+    rightside_is_out: bool
 
 
 @dataclass
@@ -24,7 +39,72 @@ class Area:
     id: int
     name: str
     fields: list[FarmField] = field(default_factory=list)
-    fences: list[Fence] = field(default_factory=list)
+    fences: list[FenceField] = field(default_factory=list)
+    horizontal_fences: dict[int, list[HorizontalFence]] = field(default_factory=dict)
+    vertical_fences: dict[int, list[VerticalFence]] = field(default_factory=dict)
+
+    @property
+    def number_of_sides(self) -> int:
+        if len(self.horizontal_fences) == 0 or len(self.vertical_fences) == 0:
+            raise RuntimeError(f"Fences were not categorized! Run categorize_fences() first.")
+
+        count = 0
+        for horizontal_fences_in_a_row in self.horizontal_fences.values():
+            count += self.count_continous_fence_sequence(
+                [(f.runs_across_col, f.topside_is_out) for f in horizontal_fences_in_a_row]
+            )
+        for vertical_fences_in_a_col in self.vertical_fences.values():
+            count += self.count_continous_fence_sequence(
+                [(f.runs_across_row, f.rightside_is_out) for f in vertical_fences_in_a_col]
+            )
+
+        return count
+
+    @staticmethod
+    def count_continous_fence_sequence(affiliated_numbers: list[tuple[int, bool]]) -> int:
+        affiliated_sorted_numbers = sorted(affiliated_numbers, key=lambda x: x[0])
+        sequence_count = 0
+        expected_number = None
+        expected_affinity: Optional[bool] = None
+
+        for number, affinity in affiliated_sorted_numbers:
+            if number == expected_number and affinity == expected_affinity:
+                expected_number += 1
+            else:
+                sequence_count += 1
+                expected_number = number + 1
+                expected_affinity = affinity
+
+        return sequence_count
+
+    def categorize_fences(self) -> None:
+        for fence in self.fences:
+            if fence.side == Direction.UP:
+                self.add_horizontal_fence(runs_across_col=fence.col, lies_before_row=fence.row, topside_is_out=True)
+            if fence.side == Direction.DOWN:
+                self.add_horizontal_fence(runs_across_col=fence.col, lies_before_row=fence.row + 1, topside_is_out=False)
+            if fence.side == Direction.LEFT:
+                self.add_vertical_fence(runs_across_row=fence.row, lies_before_col=fence.col, rightside_is_out=False)
+            if fence.side == Direction.RIGHT:
+                self.add_vertical_fence(runs_across_row=fence.row, lies_before_col=fence.col + 1, rightside_is_out=True)
+
+    def add_horizontal_fence(self, runs_across_col: int, lies_before_row: int, topside_is_out: bool) -> None:
+        horizontal_fence = HorizontalFence(
+            runs_across_col=runs_across_col, lies_before_row=lies_before_row, topside_is_out=topside_is_out
+        )
+        if lies_before_row in self.horizontal_fences:
+            self.horizontal_fences[lies_before_row].append(horizontal_fence)
+        else:
+            self.horizontal_fences[lies_before_row] = [horizontal_fence]
+
+    def add_vertical_fence(self, runs_across_row: int, lies_before_col: int, rightside_is_out: bool) -> None:
+        vertical_fence = VerticalFence(
+            runs_across_row=runs_across_row, lies_before_col=lies_before_col, rightside_is_out=rightside_is_out
+        )
+        if lies_before_col in self.vertical_fences:
+            self.vertical_fences[lies_before_col].append(vertical_fence)
+        else:
+            self.vertical_fences[lies_before_col] = [vertical_fence]
 
 
 @dataclass
@@ -46,7 +126,12 @@ class DayRunner(AbstractDay):
         return sum(len(area.fences) * len(area.fields) for area in farm.areas)
 
     def run_part_two(self):
-        return "---"
+        farm = parse_farm(self.input_loader.load_input_array("\n"))
+        price = 0
+        for area in farm.areas:
+            area.categorize_fences()
+            price += len(area.fields) * area.number_of_sides
+        return price
 
 
 def parse_farm(input_array: list[str]) -> Farm:
@@ -84,7 +169,7 @@ def create_area_from_one_field(field_to_area_match: FarmField, farm: Farm) -> No
             neighbour = cast(FarmField, neighbour)  # for typing comfort
             if neighbour is None or neighbour.name != current_field.name:
                 # different field or side of map
-                new_area.fences.append(Fence(row=current_field.row, col=current_field.col, side=direction))
+                new_area.fences.append(FenceField(row=current_field.row, col=current_field.col, side=direction))
             elif neighbour in new_area.fields or neighbour in flood_match_fields:
                 pass  # neighbour already processed/in queue
             else:
