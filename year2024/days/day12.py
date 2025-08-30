@@ -164,7 +164,7 @@ def create_area_from_one_field(field_to_area_match: FarmField, farm: Farm) -> No
     flood_match_fields = [field_to_area_match]
     while len(flood_match_fields) > 0:
         current_field = flood_match_fields.pop(0)
-        neighbours = farm.get_cardinal_neighbouring_fields(current_field=current_field, include_empty=True)
+        neighbours = farm.get_cardinal_neighbouring_fields(current_field=current_field, include_out_of_bounds=True)
         for direction, neighbour in neighbours.items():
             neighbour = cast(FarmField, neighbour)  # for typing comfort
             if neighbour is None or neighbour.name != current_field.name:

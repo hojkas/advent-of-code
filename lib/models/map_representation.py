@@ -41,12 +41,12 @@ class GenericMapRepresentation:
         return 0 <= row < self.row_count and 0 <= col < self.col_count
 
     def get_cardinal_neighbouring_fields(
-        self, current_field: GenericMapField, include_empty: bool = True
+        self, current_field: GenericMapField, include_out_of_bounds: bool = True
     ) -> dict[Direction, GenericMapField]:
         """
         Get all neighbouring fields in cardinal directions of current field.
         :param current_field:
-        :param include_empty: If true, fields out of bounds will return as None under direction key. If false, the direction
+        :param include_out_of_bounds: If true, fields out of bounds will return as None under direction key. If false, the direction
         itself will be left out of keys.
         :return: Dictionary where keys are directions and values the fields.
         """
@@ -56,7 +56,7 @@ class GenericMapRepresentation:
                 field = self.get_next_field_in_direction(current_field, direction)
                 neighbours[direction] = field
             except OutOfBoundsError:
-                if include_empty:
+                if include_out_of_bounds:
                     neighbours[direction] = None
         return neighbours
 
