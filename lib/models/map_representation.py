@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import TypeVar, Generic
 
 from lib.models.direction import Direction
 from lib.exceptions import OutOfBoundsError
@@ -15,12 +16,13 @@ class GenericMapField:
     row: int
     col: int
 
+T = TypeVar("T", bound="GenericMapField")
 
 @dataclass
-class GenericMapRepresentation:
-    fields: list[list[GenericMapField]]
+class GenericMapRepresentation(Generic[T]):
+    fields: list[list[T]]
 
-    def __init__(self, fields: list[list[GenericMapField]]):
+    def __init__(self, fields: list[list[T]]):
         self.fields = fields
 
     @property
@@ -41,8 +43,8 @@ class GenericMapRepresentation:
         return 0 <= row < self.row_count and 0 <= col < self.col_count
 
     def get_cardinal_neighbouring_fields(
-        self, current_field: GenericMapField, include_out_of_bounds: bool = True
-    ) -> dict[Direction, GenericMapField]:
+        self, current_field: T, include_out_of_bounds: bool = True
+    ) -> dict[Direction, T]:
         """
         Get all neighbouring fields in cardinal directions of current field.
         :param current_field:
@@ -60,7 +62,7 @@ class GenericMapRepresentation:
                     neighbours[direction] = None
         return neighbours
 
-    def get_next_field_in_direction(self, current_field: GenericMapField, direction: Direction) -> GenericMapField:
+    def get_next_field_in_direction(self, current_field: T, direction: Direction) -> T:
         """
         Fetch a field relative to current field in given direction.
         :param current_field:
@@ -71,7 +73,7 @@ class GenericMapRepresentation:
         vector_from_direction = MapVector(row_diff=direction.value[0], col_diff=direction.value[1])
         return self.get_next_field_by_offset(current_field, vector_from_direction)
 
-    def get_next_field_by_offset(self, current_field: GenericMapField, offset_vector: MapVector) -> GenericMapField:
+    def get_next_field_by_offset(self, current_field: T, offset_vector: MapVector) -> T:
         """
         Fetch a field with row/col offset relative to current field.
         :param current_field:
@@ -84,3 +86,7 @@ class GenericMapRepresentation:
         if not self.coordinates_within_bounds(new_row, new_col):
             raise OutOfBoundsError()
         return self.fields[new_row][new_col]
+
+@dataclass
+class GenericMapRepresentationDeprecated(GenericMapRepresentation[GenericMapField]):
+    pass

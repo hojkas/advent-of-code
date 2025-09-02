@@ -4,7 +4,7 @@ from typing import Optional, cast
 from helpers import InputLoader
 from lib.abstract_day import AbstractDay
 from lib.exceptions import OutOfBoundsError
-from lib.models import GenericMapField, GenericMapRepresentation, Direction
+from lib.models import GenericMapField, GenericMapRepresentationDeprecated, Direction
 
 
 @dataclass
@@ -29,7 +29,7 @@ class MapField(GenericMapField):
 
 
 @dataclass
-class TrailMap(GenericMapRepresentation):
+class TrailMap(GenericMapRepresentationDeprecated):
     fields: list[list[MapField]]
     trail_heads: list[MapField] = field(default_factory=list)
     peaks: list[MapField] = field(default_factory=list)

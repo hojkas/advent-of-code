@@ -4,7 +4,7 @@ from typing import Optional, cast
 
 from helpers import InputLoader
 from lib.abstract_day import AbstractDay
-from lib.models import GenericMapField, GenericMapRepresentation, Direction
+from lib.models import GenericMapField, GenericMapRepresentationDeprecated, Direction
 
 
 @dataclass
@@ -108,7 +108,7 @@ class Area:
 
 
 @dataclass
-class Farm(GenericMapRepresentation):
+class Farm(GenericMapRepresentationDeprecated):
     fields: list[list[FarmField]] = field(default_factory=list)
     areas: list[Area] = field(default_factory=list)
     unmatched_fields: list[FarmField] = field(default_factory=list)

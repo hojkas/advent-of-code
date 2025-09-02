@@ -4,7 +4,7 @@ from typing import cast, Literal
 
 from helpers import InputLoader
 from lib.abstract_day import AbstractDay
-from lib.models import Direction, GenericMapField, GenericMapRepresentation
+from lib.models import Direction, GenericMapField, GenericMapRepresentationDeprecated
 
 
 class NoMoreInstructions(Exception):
@@ -53,7 +53,7 @@ class FactoryMapField(GenericMapField):
 
 
 @dataclass
-class FactoryMap(GenericMapRepresentation):
+class FactoryMap(GenericMapRepresentationDeprecated):
     fields: list[list[FactoryMapField]]
     instructions: InstructionSet
     robot: Robot
