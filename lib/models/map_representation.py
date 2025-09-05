@@ -87,6 +87,7 @@ class GenericMapRepresentation(Generic[T]):
             raise OutOfBoundsError()
         return self.fields[new_row][new_col]
 
+
 @dataclass
 class GenericMapRepresentationDeprecated(GenericMapRepresentation[GenericMapField]):
     pass
